@@ -115,7 +115,7 @@ class MenuTool:
     
     def search_menu_items(self, restaurant_name: str, query: str) -> List[Dict[str, Any]]:
         """
-        Search for menu items matching a query.
+        Search for menu items matching a query in a specific restaurant.
         
         Args:
             restaurant_name: Name of the restaurant
@@ -143,6 +143,47 @@ class MenuTool:
                         results.append(item)
         
         return results
+    
+    def search_all_restaurants(self, query: str) -> List[Dict[str, Any]]:
+        """
+        Search for menu items across ALL restaurants.
+        
+        This is used when no specific restaurant is specified,
+        allowing users to search the entire menu database.
+        
+        Args:
+            query: Search query
+            
+        Returns:
+            List of matching menu items with restaurant information
+        """
+        all_results = []
+        query_lower = query.lower()
+        
+        if VERBOSE:
+            logger.info(f"🔍 Searching across all restaurants for: '{query}'")
+        
+        # Get all available menus
+        restaurants = self.list_all_menus()
+        
+        if not restaurants:
+            if VERBOSE:
+                logger.warning("⚠️  No restaurant menus available")
+            return []
+        
+        # Search in each restaurant
+        for restaurant_name in restaurants:
+            results = self.search_menu_items(restaurant_name, query)
+            
+            # Add restaurant information to each result
+            for item in results:
+                item['restaurant'] = restaurant_name
+                all_results.append(item)
+        
+        if VERBOSE:
+            logger.info(f"✓ Found {len(all_results)} items across {len(restaurants)} restaurants")
+        
+        return all_results
     
     def list_all_menus(self) -> List[str]:
         """

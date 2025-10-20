@@ -74,17 +74,15 @@ async def search_menu_items(request: SearchRequest):
                 item['restaurant'] = request.restaurant_name
                 all_results.append(item)
         else:
-            # Search across all restaurants
-            all_menus = get_menu_tool().list_all_menus()
-            searched_restaurants = all_menus
+            # Search across ALL restaurants (no restaurant_name required!)
+            all_results = get_menu_tool().search_all_restaurants(request.query)
             
-            for restaurant in all_menus:
-                results = get_menu_tool().search_menu_items(restaurant, request.query)
-                
-                # Add restaurant name to each result
-                for item in results:
-                    item['restaurant'] = restaurant
-                    all_results.append(item)
+            # Extract unique restaurant names from results
+            searched_restaurants = list(set([item.get('restaurant', 'Unknown') for item in all_results]))
+            
+            # If no results, get list of available restaurants for the response
+            if not searched_restaurants or searched_restaurants == ['Unknown']:
+                searched_restaurants = get_menu_tool().list_all_menus()
         
         # Convert to response models
         items = [MenuItemResponse(**item) for item in all_results]

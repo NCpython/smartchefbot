@@ -189,32 +189,27 @@ class Agent:
         action_type = action['action']
         
         if action_type == 'search_menu':
-            # Search all available menus
-            all_menus = menu_tool.list_all_menus()
+            # Search across all restaurants (no restaurant_name required!)
+            all_results = menu_tool.search_all_restaurants(action['query'])
             
-            if not all_menus:
-                return "No menus available. Please upload a menu first."
+            if not all_results:
+                all_menus = menu_tool.list_all_menus()
+                if not all_menus:
+                    return "No menus available. Please upload a menu first."
+                else:
+                    return f"No menu items found matching your query. Available restaurants: {', '.join(all_menus)}"
             
-            # Search across all restaurants
-            all_results = []
-            for restaurant in all_menus:
-                results = menu_tool.search_menu_items(restaurant, action['query'])
-                if results:
-                    all_results.extend([{**r, 'restaurant': restaurant} for r in results])
-            
-            if all_results:
-                result_text = "Found the following menu items:\n\n"
-                for item in all_results:
-                    result_text += f"Restaurant: {item.get('restaurant', 'Unknown')}\n"
-                    result_text += f"Item: {item.get('name', 'Unknown')}\n"
-                    if 'price' in item:
-                        result_text += f"Price: {item['price']}\n"
-                    if 'description' in item:
-                        result_text += f"Description: {item['description']}\n"
-                    result_text += "\n"
-                return result_text
-            else:
-                return f"No menu items found matching your query. Available restaurants: {', '.join(all_menus)}"
+            # Format results
+            result_text = f"Found {len(all_results)} menu items:\n\n"
+            for item in all_results:
+                result_text += f"Restaurant: {item.get('restaurant', 'Unknown')}\n"
+                result_text += f"Item: {item.get('name', 'Unknown')}\n"
+                if 'price' in item:
+                    result_text += f"Price: {item['price']}\n"
+                if 'description' in item:
+                    result_text += f"Description: {item['description']}\n"
+                result_text += "\n"
+            return result_text
         
         elif action_type == 'list_menus':
             menus = menu_tool.list_all_menus()
