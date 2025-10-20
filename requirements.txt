@@ -8,9 +8,9 @@ pydantic>=2.5.0
 # Google Gemini AI
 google-generativeai>=0.3.0
 
-# PDF Processing (Gemini 2.0 Flash only)
-# PyPDF2>=3.0.0
-# pdfplumber>=0.10.0
+# PDF Processing
+PyPDF2>=3.0.0
+pdfplumber>=0.10.0
 
 # HTTP and API
 httpx>=0.25.2
