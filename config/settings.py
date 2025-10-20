@@ -34,13 +34,14 @@ MENUS_DIR.mkdir(parents=True, exist_ok=True)
 EXTRACTED_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 # Google Gemini Configuration
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+# Support both GOOGLE_API_KEY and GEMINI_API_KEY for compatibility
+GEMINI_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
 GEMINI_MODEL = "gemini-2.0-flash-exp"  # Gemini Flash 2.0 - Fast and efficient
 
 # Validate API key
 if not GEMINI_API_KEY or GEMINI_API_KEY == "your_gemini_api_key_here":
-    print("⚠️  WARNING: GEMINI_API_KEY not set in .env file!")
-    print("Please add your Gemini API key to the .env file")
+    print("⚠️  WARNING: GOOGLE_API_KEY not set in environment variables!")
+    print("Please add your Gemini API key to Railway environment variables")
     print("Get your key from: https://makersuite.google.com/app/apikey")
 
 # Agent Configuration
