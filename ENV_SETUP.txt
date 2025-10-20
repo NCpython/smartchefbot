@@ -1,0 +1,48 @@
+===============================================
+ENVIRONMENT VARIABLES SETUP
+===============================================
+
+Create a .env file in your project root with these variables:
+
+GOOGLE_API_KEY=your_api_key_here
+PORT=3000
+HOST=0.0.0.0
+ENVIRONMENT=development
+
+===============================================
+HOW TO GET GOOGLE GEMINI API KEY
+===============================================
+
+1. Go to: https://makersuite.google.com/app/apikey
+2. Sign in with your Google account
+3. Click "Create API Key"
+4. Copy the key
+5. Add it to your .env file or Railway environment variables
+
+===============================================
+FOR LOCAL DEVELOPMENT
+===============================================
+
+1. Create .env file:
+   
+   cat > .env << 'EOF'
+   GOOGLE_API_KEY=your_actual_api_key_here
+   PORT=3000
+   EOF
+
+2. The .env file is in .gitignore and won't be committed
+
+===============================================
+FOR RAILWAY DEPLOYMENT
+===============================================
+
+DON'T commit .env to Git!
+
+Instead, add environment variables in Railway dashboard:
+1. Go to your project in Railway
+2. Click "Variables" tab
+3. Add: GOOGLE_API_KEY=your_key
+4. Railway will automatically redeploy
+
+===============================================
+

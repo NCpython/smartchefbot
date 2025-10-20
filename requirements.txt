@@ -1,0 +1,23 @@
+# SmartChefBot Requirements
+
+# Core Framework
+fastapi>=0.104.1
+uvicorn[standard]>=0.24.0
+pydantic>=2.5.0
+
+# Google Gemini AI
+google-generativeai>=0.3.0
+
+# PDF Processing (Gemini 2.0 Flash only)
+# PyPDF2>=3.0.0
+# pdfplumber>=0.10.0
+
+# HTTP and API
+httpx>=0.25.2
+
+# Configuration
+python-dotenv>=1.0.0
+pyyaml>=6.0.1
+
+# Utilities
+python-multipart>=0.0.6

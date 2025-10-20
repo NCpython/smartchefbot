@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        .upload-btn { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
+        .upload-btn:hover { background: #0056b3; }
+        .file-info { margin: 10px 0; padding: 10px; background: #f8f9fa; }
+        .restaurant-input { padding: 8px; margin: 10px 0; width: 200px; }
+        .upload-final-btn { padding: 10px 20px; background: #28a745; color: white; border: none; cursor: pointer; display: none; }
+    </style>
+</head>
+<body>
+    <h1>Upload Functionality Test</h1>
+    
+    <div class="test-section">
+        <h3>Step 1: File Selection</h3>
+        <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+            📄 Select PDF File
+        </button>
+        <input type="file" id="fileInput" accept=".pdf" onchange="handleFileSelect(event)" style="display: none;">
+        
+        <div class="file-info" id="fileInfo">
+            No file selected
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Step 2: Restaurant Name</h3>
+        <input type="text" id="restaurantInput" class="restaurant-input" placeholder="Restaurant Name" style="display: none;">
+    </div>
+    
+    <div class="test-section">
+        <h3>Step 3: Upload</h3>
+        <button class="upload-final-btn" id="uploadBtn" onclick="uploadPDF()">
+            ✓ Upload to Server
+        </button>
+    </div>
+    
+    <div class="test-section">
+        <h3>Debug Console</h3>
+        <div id="debugConsole" style="background: #000; color: #0f0; padding: 10px; height: 200px; overflow-y: auto; font-family: monospace;"></div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+        
+        function log(message) {
+            const console = document.getElementById('debugConsole');
+            console.innerHTML += new Date().toLocaleTimeString() + ': ' + message + '<br>';
+            console.scrollTop = console.scrollHeight;
+            console.log(message);
+        }
+        
+        function handleFileSelect(event) {
+            log('File select event triggered');
+            log('Files: ' + event.target.files.length);
+            
+            selectedFile = event.target.files[0];
+            const fileNameSpan = document.getElementById('fileInfo');
+            const restaurantInput = document.getElementById('restaurantInput');
+            const uploadBtn = document.getElementById('uploadBtn');
+            
+            log('Elements found: fileNameSpan=' + !!fileNameSpan + ', restaurantInput=' + !!restaurantInput + ', uploadBtn=' + !!uploadBtn);
+            
+            if (selectedFile) {
+                log('File selected: ' + selectedFile.name);
+                fileNameSpan.innerHTML = '<strong>Selected:</strong> ' + selectedFile.name + '<br><strong>Size:</strong> ' + selectedFile.size + ' bytes';
+                fileNameSpan.style.background = '#d4edda';
+                restaurantInput.style.display = 'block';
+                uploadBtn.style.display = 'block';
+                log('UI elements shown successfully');
+            } else {
+                log('No file selected');
+                fileNameSpan.innerHTML = 'No file selected';
+                fileNameSpan.style.background = '#f8f9fa';
+                restaurantInput.style.display = 'none';
+                uploadBtn.style.display = 'none';
+            }
+        }
+        
+        async function uploadPDF() {
+            log('Upload function called');
+            
+            if (!selectedFile) {
+                log('ERROR: No file selected');
+                alert('Please select a file first');
+                return;
+            }
+            
+            const restaurantName = document.getElementById('restaurantInput').value.trim();
+            log('Restaurant name: "' + restaurantName + '"');
+            
+            if (!restaurantName) {
+                log('ERROR: No restaurant name');
+                alert('Please enter a restaurant name');
+                return;
+            }
+            
+            log('Starting upload process...');
+            
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            formData.append('restaurant_name', restaurantName);
+            
+            try {
+                log('Sending request to /upload...');
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                log('Response received: ' + response.status);
+                const data = await response.json();
+                log('Response data: ' + JSON.stringify(data));
+                
+                if (data.success) {
+                    log('SUCCESS: ' + data.message);
+                    alert('✅ ' + data.message);
+                } else {
+                    log('ERROR: ' + data.message);
+                    alert('❌ ' + data.message);
+                }
+            } catch (error) {
+                log('FETCH ERROR: ' + error.message);
+                alert('❌ Upload error: ' + error.message);
+            }
+        }
+        
+        // Test if elements exist on page load
+        window.onload = function() {
+            log('Page loaded');
+            log('File input exists: ' + !!document.getElementById('fileInput'));
+            log('File info div exists: ' + !!document.getElementById('fileInfo'));
+            log('Restaurant input exists: ' + !!document.getElementById('restaurantInput'));
+            log('Upload button exists: ' + !!document.getElementById('uploadBtn'));
+        };
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
