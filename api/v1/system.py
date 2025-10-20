@@ -18,7 +18,12 @@ from api.models.responses import (
     SuccessResponse,
     ErrorResponse
 )
-from tool.menu_tool import menu_tool
+
+# Lazy import to avoid blocking server startup
+def get_menu_tool():
+    """Lazy load menu_tool only when needed"""
+    from tool.menu_tool import menu_tool
+    return menu_tool
 
 # Create router
 router = APIRouter(
@@ -93,7 +98,7 @@ async def get_system_stats():
     """
     try:
         # Get all menus
-        menus = menu_tool.list_menus()
+        menus = get_menu_tool().list_menus()
         
         # Calculate total items
         total_items = sum(menu.get('total_items', 0) for menu in menus)
@@ -164,7 +169,7 @@ async def clear_all_data():
     """
     try:
         # Clear all data using menu tool
-        success = menu_tool.clear_all_data()
+        success = get_menu_tool().clear_all_data()
         
         if success:
             return SuccessResponse(

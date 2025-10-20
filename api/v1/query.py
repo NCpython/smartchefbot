@@ -17,7 +17,12 @@ from api.models.responses import (
     ComplianceResponse, 
     ErrorResponse
 )
-from agent.executor import executor
+
+# Lazy import to avoid blocking server startup
+def get_executor():
+    """Lazy load executor only when needed"""
+    from agent.executor import executor
+    return executor
 
 # Create router
 router = APIRouter(
@@ -64,7 +69,7 @@ async def process_general_query(request: QueryRequest):
     """
     try:
         # Process query through executor
-        result = executor.run(request.query, context=request.context)
+        result = get_executor().run(request.query, context=request.context)
         
         if result['success']:
             return QueryResponse(
@@ -139,7 +144,7 @@ async def process_business_query(request: BusinessQueryRequest):
             context['restaurant_name'] = request.restaurant_name
         
         # Process through executor
-        result = executor.run(request.query, context=context)
+        result = get_executor().run(request.query, context=context)
         
         if result['success']:
             # Count menu items analyzed (if available)
@@ -226,7 +231,7 @@ async def process_compliance_query(request: ComplianceQueryRequest):
             context['compliance_standards'] = request.standards
         
         # Process through executor
-        result = executor.run(request.query, context=context)
+        result = get_executor().run(request.query, context=context)
         
         if result['success']:
             # Count menu items analyzed

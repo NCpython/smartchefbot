@@ -13,7 +13,12 @@ sys.path.append(str(Path(__file__).parent.parent.parent))
 
 from api.models.requests import SearchRequest
 from api.models.responses import SearchResponse, MenuItemResponse, ErrorResponse
-from tool.menu_tool import menu_tool
+
+# Lazy import to avoid blocking server startup
+def get_menu_tool():
+    """Lazy load menu_tool only when needed"""
+    from tool.menu_tool import menu_tool
+    return menu_tool
 
 # Create router
 router = APIRouter(
@@ -61,7 +66,7 @@ async def search_menu_items(request: SearchRequest):
         
         if request.restaurant_name:
             # Search in specific restaurant
-            results = menu_tool.search_menu_items(request.restaurant_name, request.query)
+            results = get_menu_tool().search_menu_items(request.restaurant_name, request.query)
             searched_restaurants.append(request.restaurant_name)
             
             # Add restaurant name to each result
@@ -70,11 +75,11 @@ async def search_menu_items(request: SearchRequest):
                 all_results.append(item)
         else:
             # Search across all restaurants
-            all_menus = menu_tool.list_all_menus()
+            all_menus = get_menu_tool().list_all_menus()
             searched_restaurants = all_menus
             
             for restaurant in all_menus:
-                results = menu_tool.search_menu_items(restaurant, request.query)
+                results = get_menu_tool().search_menu_items(restaurant, request.query)
                 
                 # Add restaurant name to each result
                 for item in results:
@@ -159,7 +164,7 @@ async def search_in_restaurant(
     """
     try:
         # Check if restaurant exists
-        menu_data = menu_tool.load_menu_data(restaurant_name)
+        menu_data = get_menu_tool().load_menu_data(restaurant_name)
         if not menu_data:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -167,7 +172,7 @@ async def search_in_restaurant(
             )
         
         # Search in this restaurant
-        results = menu_tool.search_menu_items(restaurant_name, query)
+        results = get_menu_tool().search_menu_items(restaurant_name, query)
         
         # Add restaurant name to results
         for item in results:

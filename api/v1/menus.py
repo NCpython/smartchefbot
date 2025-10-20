@@ -19,7 +19,12 @@ from api.models.responses import (
     ErrorResponse,
     MenuItemResponse
 )
-from tool.menu_tool import menu_tool
+
+# Lazy import to avoid blocking server startup
+def get_menu_tool():
+    """Lazy load menu_tool only when needed"""
+    from tool.menu_tool import menu_tool
+    return menu_tool
 
 # Create router
 router = APIRouter(
@@ -52,7 +57,7 @@ async def list_all_menus():
         ```
     """
     try:
-        menus = menu_tool.list_menus()
+        menus = get_menu_tool().list_menus()
         
         return MenuListResponse(
             success=True,
@@ -117,7 +122,7 @@ async def upload_menu(
             buffer.write(content)
         
         # Process with menu tool (uses Gemini AI)
-        result = menu_tool.upload_menu(str(file_path), restaurant_name)
+        result = get_menu_tool().upload_menu(str(file_path), restaurant_name)
         
         if result['success']:
             return SuccessResponse(
@@ -170,7 +175,7 @@ async def get_restaurant_menu(
     """
     try:
         # Load menu data
-        menu_data = menu_tool.load_menu_data(restaurant_name)
+        menu_data = get_menu_tool().load_menu_data(restaurant_name)
         
         if not menu_data:
             raise HTTPException(
@@ -221,7 +226,7 @@ async def delete_restaurant_menu(restaurant_name: str):
     """
     try:
         # Check if menu exists
-        menu_data = menu_tool.load_menu_data(restaurant_name)
+        menu_data = get_menu_tool().load_menu_data(restaurant_name)
         
         if not menu_data:
             raise HTTPException(

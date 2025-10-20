@@ -17,8 +17,26 @@ from pathlib import Path
 # Add project root to path
 sys.path.append(str(Path(__file__).parent))
 
-from agent import executor
-from tool import menu_tool
+# Lazy imports - don't import heavy modules at startup
+# These will be imported only when needed
+executor = None
+menu_tool = None
+
+def get_executor():
+    """Lazy load executor only when needed"""
+    global executor
+    if executor is None:
+        from agent import executor as _executor
+        executor = _executor
+    return executor
+
+def get_menu_tool():
+    """Lazy load menu_tool only when needed"""
+    global menu_tool
+    if menu_tool is None:
+        from tool import menu_tool as _menu_tool
+        menu_tool = _menu_tool
+    return menu_tool
 
 # Import new API routers
 from api.v1 import menus, query, items, system
@@ -1146,7 +1164,7 @@ async def data():
 async def query(request: QueryRequest):
     """Process a user query"""
     try:
-        result = executor.run(request.query, request.context)
+        result = get_executor().run(request.query, request.context)
         return QueryResponse(
             success=True,
             response=result["response"],
@@ -1175,7 +1193,7 @@ async def upload_menu(file: UploadFile = File(...), restaurant_name: str = Form(
             buffer.write(content)
         
         # Process with menu tool
-        result = menu_tool.upload_menu(str(file_path), restaurant_name)
+        result = get_menu_tool().upload_menu(str(file_path), restaurant_name)
         
         return MenuUploadResponse(
             success=True,
@@ -1193,7 +1211,7 @@ async def upload_menu(file: UploadFile = File(...), restaurant_name: str = Form(
 async def get_menus():
     """Get all uploaded menu data"""
     try:
-        menus = menu_tool.list_menus()
+        menus = get_menu_tool().list_menus()
         return MenuListResponse(
             success=True,
             menus=menus,
@@ -1211,7 +1229,7 @@ async def get_menus():
 async def clear_data():
     """Clear all menu data"""
     try:
-        menu_tool.clear_all_data()
+        get_menu_tool().clear_all_data()
         return {"success": True, "message": "All data cleared successfully"}
     except Exception as e:
         return {"success": False, "error": str(e)}
