@@ -64,11 +64,15 @@ htmlcov/
 # Jupyter Notebooks
 .ipynb_checkpoints
 
-# Model cache (Hugging Face)
-models/
+# Model cache (Hugging Face) - but NOT api/models/
+# Use specific paths to avoid blocking api/models/
+/models/
 *.bin
 *.onnx
 *.pkl
+
+# Exception: Allow api/models/ directory
+!api/models/
 
 # OS
 Thumbs.db
