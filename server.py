@@ -1150,6 +1150,11 @@ async def data():
                     }
                 }
             }
+            
+            // Auto-load menu data when page loads
+            window.addEventListener('DOMContentLoaded', function() {
+                loadMenuData();
+            });
         </script>
         
         <div class="powered-by">
