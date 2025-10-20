@@ -1083,17 +1083,26 @@ async def data():
         
         <script>
             async function loadMenuData() {
+                const content = document.getElementById('dataContent');
+                content.innerHTML = '<div class="data-card"><h3>Loading...</h3><p>Fetching menu data from /menus endpoint...</p></div>';
+                
                 try {
+                    console.log('Fetching from /menus endpoint...');
                     const response = await fetch('/menus');
+                    console.log('Response received:', response.status);
                     const result = await response.json();
+                    console.log('Data parsed:', result);
                     
                     if (result.success) {
+                        console.log('Displaying', result.menus.length, 'restaurants');
                         displayMenuData(result.menus);
                     } else {
-                        alert('Failed to load menu data: ' + result.error);
+                        console.error('API returned success=false:', result.error);
+                        content.innerHTML = '<div class="data-card"><h3>Error</h3><p>Failed to load menu data: ' + (result.error || 'Unknown error') + '</p></div>';
                     }
                 } catch (error) {
-                    alert('Error loading menu data: ' + error.message);
+                    console.error('Error loading menu data:', error);
+                    content.innerHTML = '<div class="data-card"><h3>Error</h3><p>Error loading menu data: ' + error.message + '</p><p>Check browser console for details.</p></div>';
                 }
             }
             
@@ -1116,11 +1125,15 @@ async def data():
                     menu.items.forEach(item => {
                         html += '<div style="padding: 0.75rem; background: white; border: 1px solid #e2e8f0; border-radius: 6px; margin-bottom: 0.5rem;">';
                         html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">';
-                        html += '<strong style="color: #1e293b;">' + item.name + '</strong>';
-                        html += '<span style="color: #10b981; font-weight: 600;">' + item.price + '</span>';
+                        html += '<strong style="color: #1e293b;">' + (item.name || 'Unknown') + '</strong>';
+                        html += '<span style="color: #10b981; font-weight: 600;">' + (item.price || 'N/A') + '</span>';
                         html += '</div>';
-                        html += '<p style="color: #64748b; font-size: 0.875rem; margin-bottom: 0.5rem;">' + item.description + '</p>';
-                        html += '<span style="color: #6b7280; font-size: 0.75rem;">' + item.category + '</span>';
+                        if (item.description) {
+                            html += '<p style="color: #64748b; font-size: 0.875rem; margin-bottom: 0.5rem;">' + item.description + '</p>';
+                        }
+                        if (item.category) {
+                            html += '<span style="color: #6b7280; font-size: 0.75rem;">' + item.category + '</span>';
+                        }
                         html += '</div>';
                     });
                     
